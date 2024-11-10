@@ -13,7 +13,6 @@ from scale import ScaleDetector
 
 def draw_plot(
         num_e: int,
-        num_c: int,
         img_data: MethodData,
         hist_data: MethodData,
         grad_data: MethodData,
@@ -56,7 +55,7 @@ def draw_plot(
     #fig2.set_size_inches(19, 5)
    # fig2.show()
     #поиск числа подпапок
-    num_subfolders = num_c
+    num_subfolders = len([f.path for f in os.scandir("Test1") if f.is_dir()])
     #num_subfolders = len([f.path for f in os.scandir("ORLdataset") if f.is_dir()])
     #перебор подпапок
 
@@ -78,7 +77,7 @@ def draw_plot(
             grad_plot_data.set_y_a_e(grad_data.e[p])
             scale_plot_data.set_a_e(scale_data.e[p])
 
-            num_files = len([f for f in os.listdir(f"ORLdataset/s{t+1}") if os.path.isfile(os.path.join(f"ORLdataset/s{t}", f))])
+            num_files = len([f for f in os.listdir(f"Test1/s{t+1}") if os.path.isfile(os.path.join(f"Test1/s{t}", f))])
 
             for m in range((0 + p * (num_files - num_e)), (num_files - num_e) * (p + 1), 1):
                 img_plot_data.set_met_a(img_data.t[m])

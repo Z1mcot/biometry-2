@@ -48,16 +48,13 @@ class ImageDetector(BaseDetector):
         if ch_func == 2:
             help_pos = 0
 
-        num_subfolders = num_c
-
-        if num_subfolders == 0:
-            raise Exception("Missing ORLDatabase")
+        num_subfolders = len([f.path for f in os.scandir("Test1") if f.is_dir()])
 
         for i in range(1, num_subfolders+1, 1):
             num_files = len(
                 [
-                    f for f in os.listdir(f"ORLdataset/s{i}") if os.path.isfile(
-                        os.path.join(f"ORLdataset/s{i}", f)
+                    f for f in os.listdir(f"Test1/s{i}") if os.path.isfile(
+                        os.path.join(f"Test1/s{i}", f)
                     )
                 ]
             )
@@ -65,13 +62,13 @@ class ImageDetector(BaseDetector):
             # Перебор эталонов
             for j in range(start_pos, end_pos + 1, step):
                 e_det.append(
-                    self.detect_from_file(f"ORLdataset/s{i}/{j}.pgm")
+                    self.detect_from_file(f"Test1/s{i}/{j}.jpg")
                 )
 
                 #перебор тестов
                 for k in range(help_pos + 1, num_files + 1, step):
                     t_det.append(
-                        self.detect_from_file(f"ORLdataset/s{i}/{k}.pgm")
+                        self.detect_from_file(f"Test1/s{i}/{k}.jpg")
                     )
 
         return MethodData(self.title,[], [], t_det, e_det, [])

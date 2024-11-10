@@ -32,111 +32,19 @@ class BaseDetector:
     def check_against_test(self, ref, tst):
         raise NotImplementedError
 
-    # def create_chart_data(self,
-    #                 num_e,
-    #                 num_c,
-    #                 start_pos,
-    #                 step,
-    #                 end_pos,
-    #                 ch_func):
-    #     stat_det = []
-    #     stat_det_indv = []
-    #     t_det = []
-    #     e_det = []
-    #
-    #     ind_et = 0
-    #     ind_t = 0
-    #
-    #     if ch_func == 0:
-    #         help_pos = num_e
-    #     if ch_func == 1:
-    #         help_pos = 1
-    #     if ch_func == 2:
-    #         help_pos = 0
-    #
-    #     num_subfolders = num_c
-    #
-    #     if num_subfolders == 0:
-    #         raise Exception("Missing ORLDatabase")
-    #
-    #     dif = 1
-    #
-    #     for i in range(1, num_subfolders+1, 1):
-    #         sum_det = 0
-    #
-    #         num_files = len(
-    #             [
-    #                 f for f in os.listdir(f"ORLdataset/s{i}") if os.path.isfile(
-    #                     os.path.join(f"ORLdataset/s{i}", f)
-    #                 )
-    #             ]
-    #         )
-    #
-    #         # Перебор эталонов
-    #         for j in range(start_pos, end_pos + 1, step):
-    #             e_det.append(
-    #                 self.detect_from_file(f"ORLdataset/s{i}/{j}.pgm")
-    #             )
-    #
-    #             #перебор тестов
-    #             for k in range(help_pos + 1, num_files + 1, step):
-    #                 t_det.append(
-    #                     self.detect_from_file(f"ORLdataset/s{i}/{k}.pgm")
-    #                 )
-    #
-    #                 # Уменьшение процесса исправления и предусмотр четного/нечетного выбора
-    #                 if ch_func == 0:
-    #                     jjj = j - 1 + num_e * (i - 1)
-    #                     kkk = k - num_e - 1 + (10 - num_e) * (i - 1)
-    #                 else:
-    #                     jjj = ind_et
-    #                     kkk = ind_t
-    #
-    #                 test_result = self.check_against_test(e_det[jjj], t_det[kkk])
-    #                 sum_det += test_result
-    #                 stat_det_indv.append(test_result)
-    #
-    #                 ind_t += 1
-    #
-    #             ind_et += 1
-    #         #ускорение процесса исправления
-    #         dif = num_files - num_e
-    #         stat_det.append(sum_det / (dif * num_e))
-    #
-    #     stat_det_indv_n = np.zeros(dif * num_subfolders)
-    #
-    #     #перебор каждого s
-    #     for m in range(1, num_subfolders + 1, 1):
-    #         ad = 0
-    #
-    #         initial = (m-1) * dif
-    #         end = dif * m
-    #
-    #         for l in range(initial, end, 1):
-    #             for o in range(0, num_e, 1):
-    #                 v = ad + dif * o + (m-1) * num_e * dif
-    #                 #расчет среднего показателя тестовых изображений относительно кол-ва эталонов
-    #                 stat_det_indv_n[l] += stat_det_indv[v]
-    #
-    #             ad += 1
-    #
-    #             stat_det_indv_n[l] = stat_det_indv_n[l] / num_e
-    #
-    #     return MethodData(self.title, stat_det, stat_det_indv, t_det, e_det, stat_det_indv_n)
-
     def process_subfolder(self, folder_path, start_pos, end_pos, step, num_e, help_pos, ch_func, folder_index, stat_det_indv,
                           t_det, e_det):
         sum_det = 0
         num_files = len([f for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f))])
 
         for j in range(start_pos, end_pos + 1, step):
-            e_det.append(self.detect_from_file(f"{folder_path}/{j}.pgm"))
+            e_det.append(self.detect_from_file(f"{folder_path}/{j}.jpg"))
 
             for k in range(help_pos + 1, num_files + 1, step):
-                t_det.append(self.detect_from_file(f"{folder_path}/{k}.pgm"))
+                t_det.append(self.detect_from_file(f"{folder_path}/{k}.jpg"))
 
                 jjj = (j - 1 + num_e * (folder_index - 1)) if ch_func == 0 else (len(e_det) - 1)
-                kkk = (k - num_e - 1 + (10 - num_e) * (folder_index - 1)) if ch_func == 0 else (len(t_det) - 1)
+                kkk = (k - num_e - 1 + (5 - num_e) * (folder_index - 1)) if ch_func == 0 else (len(t_det) - 1)
 
                 test_result = self.check_against_test(e_det[jjj], t_det[kkk])
                 sum_det += test_result
@@ -144,18 +52,17 @@ class BaseDetector:
 
         return sum_det, num_files
 
-    def create_chart_data(self, num_e, num_c, start_pos, step, end_pos, ch_func):
+    def create_chart_data(self, num_e, start_pos, step, end_pos, ch_func):
         stat_det = []
         stat_det_indv = []
         t_det = []
         e_det = []
 
-        if num_c == 0:
-            raise Exception("Missing ORLDatabase")
-
         help_pos = num_e if ch_func == 0 else 1 if ch_func == 1 else 0
 
-        folder_paths = [f"ORLdataset/s{i}" for i in range(1, num_c + 1)]
+        num_c = len([f.path for f in os.scandir("Test1") if f.is_dir()])
+
+        folder_paths = [f"Test1/s{i}" for i in range(1, num_c + 1)]
         for i, folder_path in enumerate(folder_paths, start=1):
             sum_det, num_files = self.process_subfolder(
                 folder_path, start_pos, end_pos, step, num_e, help_pos, ch_func, i, stat_det_indv, t_det, e_det
